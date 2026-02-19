@@ -38,6 +38,7 @@ Embeddable BNPL (Buy Now Pay Later) checkout product, similar to Tabby. React 19
 - **Responsive:** mobile-first, must work on both mobile and desktop
 - **CLAUDE.md** must be updated after every key change
 - **README** must be updated after every significant commit
+- **Prompt log:** Append every user prompt (and any clarifying Q&A) to `docs/prompt.md` at the end of each session or commit
 
 ### Path aliases
 `@/*` maps to `./src/*` (configured in both vite.config.ts and tsconfig.app.json).

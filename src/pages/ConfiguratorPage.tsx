@@ -413,7 +413,7 @@ export function ConfiguratorPage() {
         />
 
         {/* Right: Live preview */}
-        <div ref={previewRef} className="flex-1 overflow-y-auto">
+        <div ref={previewRef} className={`flex-1 overflow-y-auto ${previewMode === "mobile" ? "bg-muted/30" : ""}`}>
           <div className={previewMode === "mobile" ? "mx-auto max-w-[375px]" : ""}>
             <CheckoutProvider config={config}>
               <CheckoutShell mode="inline" containerWidth={previewMode === "mobile" ? 375 : previewContainerWidth}>

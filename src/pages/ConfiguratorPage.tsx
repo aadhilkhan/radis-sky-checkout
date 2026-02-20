@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, Menu01Icon, Store01Icon, ShoppingBag01Icon, WorkflowSquare03Icon, Calendar01Icon, CreditCardIcon } from "@hugeicons/core-free-icons"
+import { Cancel01Icon, Menu01Icon, Store01Icon, ShoppingBag01Icon, WorkflowSquare03Icon, Calendar01Icon, CreditCardIcon, ComputerIcon, SmartPhone01Icon } from "@hugeicons/core-free-icons"
 import { useCheckoutConfig, ALL_PLANS, type PaymentMethodType, type Currency } from "@/context/CheckoutConfigContext"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ import { Field, FieldLabel, FieldDescription, FieldGroup } from "@/components/ui
 import { CheckoutProvider } from "@/checkout/CheckoutProvider"
 import { CheckoutShell } from "@/checkout/CheckoutShell"
 import { CheckoutFlow } from "@/checkout/CheckoutFlow"
+import { cn } from "@/lib/utils"
 
 const CURRENCIES: { value: Currency; label: string }[] = [
   { value: "AED", label: "AED - UAE Dirham" },
@@ -42,6 +43,7 @@ export function ConfiguratorPage() {
   const [isWideViewport, setIsWideViewport] = useState(window.innerWidth >= SIDE_BY_SIDE_BREAKPOINT)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [previewContainerWidth, setPreviewContainerWidth] = useState(0)
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
   const previewRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
 
@@ -378,7 +380,31 @@ export function ConfiguratorPage() {
         <div className="flex-shrink-0 overflow-y-auto border-r bg-background" style={{ width: sidebarWidth }}>
           <div className="p-6">
             <div className="mb-6">
-              <h1 className="text-lg font-semibold tracking-tight">Checkout Configurator</h1>
+              <div className="flex items-center justify-between">
+                <h1 className="text-lg font-semibold tracking-tight">Checkout Configurator</h1>
+                <div className="flex items-center gap-0.5 rounded-lg border p-0.5" role="group" aria-label="Preview mode">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={cn(previewMode === "desktop" && "bg-muted")}
+                    onClick={() => setPreviewMode("desktop")}
+                    aria-label="Desktop preview"
+                    aria-pressed={previewMode === "desktop"}
+                  >
+                    <HugeiconsIcon icon={ComputerIcon} size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={cn(previewMode === "mobile" && "bg-muted")}
+                    onClick={() => setPreviewMode("mobile")}
+                    aria-label="Mobile preview"
+                    aria-pressed={previewMode === "mobile"}
+                  >
+                    <HugeiconsIcon icon={SmartPhone01Icon} size={16} />
+                  </Button>
+                </div>
+              </div>
               <p className="text-muted-foreground mt-1 text-xs">Configure and preview the BNPL checkout experience.</p>
             </div>
             {configuratorContent}
@@ -392,12 +418,14 @@ export function ConfiguratorPage() {
         />
 
         {/* Right: Live preview */}
-        <div ref={previewRef} className="flex-1 overflow-y-auto">
-          <CheckoutProvider config={config}>
-            <CheckoutShell mode="inline" containerWidth={previewContainerWidth}>
-              <CheckoutFlow />
-            </CheckoutShell>
-          </CheckoutProvider>
+        <div ref={previewRef} className={cn("flex-1 overflow-y-auto", previewMode === "mobile" && "bg-muted/30")}>
+          <div className={cn(previewMode === "mobile" && "mx-auto max-w-[375px]")}>
+            <CheckoutProvider config={config}>
+              <CheckoutShell mode="inline" containerWidth={previewMode === "mobile" ? 375 : previewContainerWidth}>
+                <CheckoutFlow />
+              </CheckoutShell>
+            </CheckoutProvider>
+          </div>
         </div>
       </div>
     )

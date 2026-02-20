@@ -4,23 +4,26 @@ An embeddable BNPL (Buy Now Pay Later) checkout product built with React, simila
 
 ## Current State
 
-**Phase: Project Setup & Design System**
+**Phase: Configurator + Live Preview**
 
+- Side-by-side checkout configurator with live preview at `/`
+- Resizable divider to test desktop and mobile breakpoints
+- Drawer fallback on narrow viewports (<1024px)
 - Design system page with all shadcn/ui components showcased
-- Checkout configurator for setting up and launching demo checkouts
 - Storybook for individual component exploration
 
 ### Checkout Flow (v1)
 
 1. Login (OTP-based phone authentication)
 2. BNPL plan selection (Pay in 4, Pay in 3, Pay later)
-3. Payment method selection (Card, Apple Pay)
+3. Payment method selection (Card, Apple Pay, Google Pay)
 4. Success confirmation
 
 ### Rendering Modes
 
-- **Modal / bottom sheet** — overlays the merchant page (bottom sheet on mobile, centered modal on desktop)
-- **Full-page** — standalone checkout page
+- **Inline** — live preview inside the configurator (container-responsive)
+- **Full-page** — standalone checkout page at `/checkout`
+- **Modal** — overlay mode (available for external integration)
 
 ## Tech Stack
 
@@ -68,7 +71,7 @@ src/
 
 | Path | Description |
 |------|-------------|
-| `/` | Checkout Configurator — setup wizard to configure and launch checkout demos |
+| `/` | Checkout Configurator — side-by-side layout with live preview |
 | `/design-system` | Living component showcase — all UI components with variants and states |
 | `/checkout` | Full-page checkout mode |
 

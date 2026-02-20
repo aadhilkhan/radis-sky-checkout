@@ -150,3 +150,25 @@
 5. Added Logo URL input to merchant settings
 6. Added Brand Color picker to merchant settings
 7. Added Checkout Flow selector section with future flow placeholders
+
+---
+
+## Session: 2026-02-21 — Side-by-Side Configurator + Live Preview
+
+**User prompt:** "I want the checkout preview to be side to side with configurator, which means no need of a Modal view option. Left column should be configurator options and right column should be a live preview. The live preview column should be resizable, so that I can switch from desktop to mobile breakpoint. Now I know that this entire page can not have enough width for a side to side layout always, in that case I want the configurator to become a floating sidebar over the checkout."
+
+**Clarifying Q&A:**
+- Q: When narrow, how should configurator behave? A: Collapsible drawer panel from the left, toggled by a button
+- Q: Wide container preview style? A: Full page experience (not modal overlay)
+- Q: Configurator max width? A: Not more than 1/3rd of the page
+
+**What was built:**
+- Removed `renderMode` from CheckoutConfigContext (no more modal/fullpage toggle)
+- Added `mode="inline"` to CheckoutShell with container-responsive layout (desktop card >=448px, mobile full-width <448px)
+- Rewrote ConfiguratorPage as two-column side-by-side layout with drag-resizable divider
+- Added drawer fallback for narrow viewports (<1024px) with Motion slide animation
+- Updated all documentation (CLAUDE.md, design docs, prompt log)
+
+**Follow-up tweaks:**
+- Default sidebar width changed to 1/3 of viewport (was fixed 320px)
+- Added HugeIcons to each configurator section header (Store, ShoppingBag, Workflow, Calendar, CreditCard)

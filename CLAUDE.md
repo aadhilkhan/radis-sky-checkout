@@ -18,9 +18,9 @@ Embeddable BNPL (Buy Now Pay Later) checkout product, similar to Tabby. React 19
 
 ### Product
 - Self-contained `<Checkout />` widget with internal step machine (`useReducer`)
-- Dual rendering: modal/bottom-sheet overlay OR full-page standalone
+- Three rendering modes: `inline` (configurator preview), `fullpage` (standalone page), `modal` (overlay)
 - Flow: Login (OTP) → Plan Selection → Payment Method → Success
-- Checkout Configurator page at `/` for setting up and launching checkout demos
+- Checkout Configurator page at `/` — side-by-side layout with configurator options on the left and live checkout preview on the right. Resizable divider between columns. On narrow viewports (<1024px), configurator collapses into a slide-out drawer.
 - Design system page at `/design-system` showing all components
 
 ### Key stack choices
@@ -47,7 +47,7 @@ Embeddable BNPL (Buy Now Pay Later) checkout product, similar to Tabby. React 19
 - `src/components/ui/` — shadcn/ui components. All use data-slot attributes and `cn()`. Every new component goes here.
 - `src/components/` — app-level composed components
 - `src/pages/` — route pages (ConfiguratorPage, DesignSystemPage)
-- `src/checkout/` — checkout widget (CheckoutProvider, CheckoutShell, CheckoutFlow, steps/)
+- `src/checkout/` — checkout widget; CheckoutShell supports three modes: `inline` (configurator preview), `fullpage` (standalone page), `modal` (overlay)
 - `src/context/` — React contexts (CheckoutConfigContext)
 - `src/lib/utils.ts` — `cn()` helper combining clsx and tailwind-merge
 - `src/index.css` — Tailwind imports, shadcn theme, OKLCH design tokens (light/dark mode)
@@ -55,7 +55,7 @@ Embeddable BNPL (Buy Now Pay Later) checkout product, similar to Tabby. React 19
 - `docs/plans/` — design documents and implementation plans
 
 ### Routes
-- `/` — Checkout Configurator (setup wizard + launch CTA)
+- `/` — Checkout Configurator (side-by-side layout with live preview)
 - `/design-system` — Living component showcase (all shadcn/ui components)
 - `/checkout` — Full-page checkout mode
 

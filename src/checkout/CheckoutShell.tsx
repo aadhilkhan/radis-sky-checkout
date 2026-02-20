@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { useCheckout } from "./CheckoutProvider"
+import type { MerchantConfig } from "@/context/CheckoutConfigContext"
 
 interface CheckoutShellProps {
   mode: "modal" | "fullpage"
@@ -19,7 +20,7 @@ export function CheckoutShell({ mode, onClose, children }: CheckoutShellProps) {
     return (
       <div className="bg-muted/30 flex min-h-screen items-start justify-center px-4 py-8">
         <div className="bg-card ring-foreground/10 w-full max-w-md overflow-hidden rounded-2xl shadow-lg ring-1">
-          <ShellHeader merchantName={config.merchant.name} onClose={onClose} />
+          <ShellHeader merchant={config.merchant} onClose={onClose} />
           <div className="p-6">{children}</div>
         </div>
       </div>
@@ -55,7 +56,7 @@ export function CheckoutShell({ mode, onClose, children }: CheckoutShellProps) {
             <div className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
           </div>
 
-          <ShellHeader merchantName={config.merchant.name} onClose={onClose} />
+          <ShellHeader merchant={config.merchant} onClose={onClose} />
           <div className="overflow-y-auto p-6">{children}</div>
         </motion.div>
       </div>
@@ -63,10 +64,26 @@ export function CheckoutShell({ mode, onClose, children }: CheckoutShellProps) {
   )
 }
 
-function ShellHeader({ merchantName, onClose }: { merchantName: string; onClose?: () => void }) {
+function ShellHeader({ merchant, onClose }: { merchant: MerchantConfig; onClose?: () => void }) {
   return (
     <div className="flex items-center justify-between border-b px-6 py-4">
-      <span className="text-sm font-semibold">{merchantName}</span>
+      <div className="flex items-center gap-3">
+        {merchant.logoUrl ? (
+          <img
+            src={merchant.logoUrl}
+            alt={`${merchant.name} logo`}
+            className="h-7 w-7 rounded-md object-contain"
+          />
+        ) : (
+          <div
+            className="flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold text-white"
+            style={{ backgroundColor: merchant.brandColor || "var(--primary)" }}
+          >
+            {merchant.name.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <span className="text-sm font-semibold">{merchant.name}</span>
+      </div>
       {onClose && (
         <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close checkout">
           <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />

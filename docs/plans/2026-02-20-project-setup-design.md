@@ -1,3 +1,5 @@
+> **Note (2026-02-21):** The Rendering Modes and Checkout Configurator sections below have been superseded. The configurator now uses a side-by-side layout with live preview instead of a launch-and-render model. See [Side-by-Side Preview Design](./2026-02-21-side-by-side-preview-design.md).
+
 # Project Setup & Architecture Design
 
 **Date:** 2026-02-20

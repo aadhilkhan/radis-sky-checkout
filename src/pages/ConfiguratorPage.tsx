@@ -84,6 +84,17 @@ export function ConfiguratorPage() {
                 </Field>
 
                 <Field>
+                  <FieldLabel htmlFor="merchant-logo">Logo URL</FieldLabel>
+                  <Input
+                    id="merchant-logo"
+                    value={config.merchant.logoUrl}
+                    onChange={(e) => updateMerchant({ logoUrl: e.target.value })}
+                    placeholder="https://example.com/logo.png"
+                  />
+                  <FieldDescription>Optional merchant logo for the checkout header.</FieldDescription>
+                </Field>
+
+                <Field>
                   <FieldLabel htmlFor="merchant-currency">Currency</FieldLabel>
                   <Select
                     value={config.merchant.currency}
@@ -130,6 +141,50 @@ export function ConfiguratorPage() {
                   ))}
                 </FieldDescription>
               </Field>
+            </CardContent>
+          </Card>
+
+          {/* Checkout Flow */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Checkout Flow</CardTitle>
+              <CardDescription>Select which checkout journey to use.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground"
+                >
+                  <div>
+                    <span className="font-medium">Standard BNPL</span>
+                    <p className="text-muted-foreground text-xs mt-0.5">Login → Plan Selection → Payment → Success</p>
+                  </div>
+                  <Badge variant="default" className="text-xs">Active</Badge>
+                </button>
+                <button
+                  type="button"
+                  disabled
+                  className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60 cursor-not-allowed"
+                >
+                  <div>
+                    <span className="font-medium">Quick Pay</span>
+                    <p className="text-xs mt-0.5">Simplified one-step checkout</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                </button>
+                <button
+                  type="button"
+                  disabled
+                  className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60 cursor-not-allowed"
+                >
+                  <div>
+                    <span className="font-medium">Onboarding + BNPL</span>
+                    <p className="text-xs mt-0.5">Customer details → Credit scoring → BNPL</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                </button>
+              </div>
             </CardContent>
           </Card>
 

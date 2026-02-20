@@ -22,7 +22,6 @@ export interface CheckoutConfig {
   merchant: MerchantConfig
   plans: BnplPlan[]
   paymentMethods: PaymentMethodType[]
-  renderMode: "modal" | "fullpage"
   orderAmount: number
 }
 
@@ -42,7 +41,6 @@ const defaultConfig: CheckoutConfig = {
   plans: [...ALL_PLANS],
   paymentMethods: ["card"],
   orderAmount: 400,
-  renderMode: "fullpage",
 }
 
 interface CheckoutConfigContextValue {
@@ -52,7 +50,6 @@ interface CheckoutConfigContextValue {
   setPlans: (plans: BnplPlan[]) => void
   togglePlan: (planId: string) => void
   setPaymentMethods: (methods: PaymentMethodType[]) => void
-  setRenderMode: (mode: "modal" | "fullpage") => void
   setOrderAmount: (amount: number) => void
 }
 
@@ -90,17 +87,13 @@ export function CheckoutConfigProvider({ children }: { children: ReactNode }) {
     setConfig((prev) => ({ ...prev, paymentMethods: methods }))
   }
 
-  const setRenderMode = (mode: "modal" | "fullpage") => {
-    setConfig((prev) => ({ ...prev, renderMode: mode }))
-  }
-
   const setOrderAmount = (amount: number) => {
     setConfig((prev) => ({ ...prev, orderAmount: amount }))
   }
 
   return (
     <CheckoutConfigContext.Provider
-      value={{ config, setConfig, updateMerchant, setPlans, togglePlan, setPaymentMethods, setRenderMode, setOrderAmount }}
+      value={{ config, setConfig, updateMerchant, setPlans, togglePlan, setPaymentMethods, setOrderAmount }}
     >
       {children}
     </CheckoutConfigContext.Provider>

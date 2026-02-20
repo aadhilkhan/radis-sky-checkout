@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Field, FieldLabel, FieldDescription, FieldGroup } from "@/components/ui/field"
-import { CheckoutProvider } from "@/checkout/CheckoutProvider"
-import { CheckoutShell } from "@/checkout/CheckoutShell"
-import { CheckoutFlow } from "@/checkout/CheckoutFlow"
+// Checkout imports — temporarily commented; re-enable when wiring live preview (Task 3)
+// import { CheckoutProvider } from "@/checkout/CheckoutProvider"
+// import { CheckoutShell } from "@/checkout/CheckoutShell"
+// import { CheckoutFlow } from "@/checkout/CheckoutFlow"
 
 const CURRENCIES: { value: Currency; label: string }[] = [
   { value: "AED", label: "AED - UAE Dirham" },
@@ -28,8 +29,7 @@ const PAYMENT_METHODS: { value: PaymentMethodType; label: string }[] = [
 ]
 
 export function ConfiguratorPage() {
-  const { config, updateMerchant, togglePlan, setPaymentMethods, setRenderMode, setOrderAmount } = useCheckoutConfig()
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const { config, updateMerchant, togglePlan, setPaymentMethods, setOrderAmount } = useCheckoutConfig()
   const [logoInputMode, setLogoInputMode] = useState<"url" | "upload">("url")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -42,18 +42,6 @@ export function ConfiguratorPage() {
     } else {
       setPaymentMethods([...current, method])
     }
-  }
-
-  const handleLaunch = () => {
-    if (config.renderMode === "modal") {
-      setIsCheckoutOpen(true)
-    } else {
-      window.location.href = "/checkout"
-    }
-  }
-
-  const formatAmount = (amount: number) => {
-    return `${config.merchant.currency} ${amount.toFixed(2)}`
   }
 
   return (
@@ -305,63 +293,8 @@ export function ConfiguratorPage() {
             </CardContent>
           </Card>
 
-          {/* Rendering Mode */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Rendering Mode</CardTitle>
-              <CardDescription>How the checkout appears to customers.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRenderMode("fullpage")}
-                  className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-sm transition-colors ${
-                    config.renderMode === "fullpage"
-                      ? "border-primary bg-primary/5 text-foreground"
-                      : "border-border text-muted-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="bg-card flex h-12 w-16 items-center justify-center rounded-md border">
-                    <div className="bg-muted h-10 w-12 rounded" />
-                  </div>
-                  <span className="font-medium">Full Page</span>
-                  <span className="text-muted-foreground text-xs">Standalone checkout page</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRenderMode("modal")}
-                  className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-sm transition-colors ${
-                    config.renderMode === "modal"
-                      ? "border-primary bg-primary/5 text-foreground"
-                      : "border-border text-muted-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="bg-muted flex h-12 w-16 items-center justify-center rounded-md border">
-                    <div className="bg-card h-8 w-10 rounded border shadow-sm" />
-                  </div>
-                  <span className="font-medium">Modal</span>
-                  <span className="text-muted-foreground text-xs">Overlay on current page</span>
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Launch */}
-          <Button size="lg" className="w-full" onClick={handleLaunch}>
-            Launch Checkout — {formatAmount(config.orderAmount)}
-          </Button>
         </div>
       </div>
-
-      {/* Modal checkout overlay */}
-      {isCheckoutOpen && (
-        <CheckoutProvider config={config}>
-          <CheckoutShell mode="modal" onClose={() => setIsCheckoutOpen(false)}>
-            <CheckoutFlow />
-          </CheckoutShell>
-        </CheckoutProvider>
-      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, Menu01Icon, Store01Icon, ShoppingBag01Icon, WorkflowSquare03Icon, Calendar01Icon, CreditCardIcon } from "@hugeicons/core-free-icons"
+import { Cancel01Icon, Menu01Icon, Store01Icon, ShoppingBag01Icon, WorkflowSquare03Icon, Calendar01Icon, CreditCardIcon, ComputerIcon, SmartPhone01Icon } from "@hugeicons/core-free-icons"
 import { useCheckoutConfig, ALL_PLANS, type PaymentMethodType, type Currency } from "@/context/CheckoutConfigContext"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -42,6 +42,7 @@ export function ConfiguratorPage() {
   const [isWideViewport, setIsWideViewport] = useState(window.innerWidth >= SIDE_BY_SIDE_BREAKPOINT)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [previewContainerWidth, setPreviewContainerWidth] = useState(0)
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
   const previewRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
 
@@ -378,7 +379,27 @@ export function ConfiguratorPage() {
         <div className="flex-shrink-0 overflow-y-auto border-r bg-background" style={{ width: sidebarWidth }}>
           <div className="p-6">
             <div className="mb-6">
-              <h1 className="text-lg font-semibold tracking-tight">Checkout Configurator</h1>
+              <div className="flex items-center justify-between">
+                <h1 className="text-lg font-semibold tracking-tight">Checkout Configurator</h1>
+                <div className="flex items-center gap-0.5 rounded-lg border p-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={previewMode === "desktop" ? "bg-muted" : ""}
+                    onClick={() => setPreviewMode("desktop")}
+                  >
+                    <HugeiconsIcon icon={ComputerIcon} size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={previewMode === "mobile" ? "bg-muted" : ""}
+                    onClick={() => setPreviewMode("mobile")}
+                  >
+                    <HugeiconsIcon icon={SmartPhone01Icon} size={16} />
+                  </Button>
+                </div>
+              </div>
               <p className="text-muted-foreground mt-1 text-xs">Configure and preview the BNPL checkout experience.</p>
             </div>
             {configuratorContent}
@@ -393,11 +414,13 @@ export function ConfiguratorPage() {
 
         {/* Right: Live preview */}
         <div ref={previewRef} className="flex-1 overflow-y-auto">
-          <CheckoutProvider config={config}>
-            <CheckoutShell mode="inline" containerWidth={previewContainerWidth}>
-              <CheckoutFlow />
-            </CheckoutShell>
-          </CheckoutProvider>
+          <div className={previewMode === "mobile" ? "mx-auto max-w-[375px]" : ""}>
+            <CheckoutProvider config={config}>
+              <CheckoutShell mode="inline" containerWidth={previewMode === "mobile" ? 375 : previewContainerWidth}>
+                <CheckoutFlow />
+              </CheckoutShell>
+            </CheckoutProvider>
+          </div>
         </div>
       </div>
     )

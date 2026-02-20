@@ -410,7 +410,7 @@ export function ConfiguratorPage() {
       <Button
         variant="outline"
         size="icon-sm"
-        className="fixed left-4 top-4 z-40 shadow-md"
+        className="fixed bottom-4 left-4 z-40 shadow-md"
         onClick={() => setIsDrawerOpen(true)}
       >
         <HugeiconsIcon icon={Menu01Icon} size={18} />
@@ -437,7 +437,7 @@ export function ConfiguratorPage() {
               onClick={() => setIsDrawerOpen(false)}
             />
             <motion.div
-              className="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] overflow-y-auto bg-background shadow-xl"
+              className="fixed inset-y-0 left-0 z-50 w-[80vw] overflow-y-auto bg-background shadow-xl"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}

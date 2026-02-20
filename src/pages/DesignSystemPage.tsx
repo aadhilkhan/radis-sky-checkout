@@ -79,6 +79,7 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
+import { DirectionProvider } from "@/components/ui/direction"
 
 // Icons
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -114,6 +115,7 @@ const SECTIONS = [
   { id: "alert-dialog", label: "Alert Dialog" },
   { id: "dropdown-menu", label: "Dropdown Menu" },
   { id: "separator", label: "Separator" },
+  { id: "direction", label: "Direction" },
 ] as const
 
 // ─── Shared layout ──────────────────────────────────────────────
@@ -199,6 +201,9 @@ function ColorsSection() {
               <span className="text-muted-foreground max-w-16 truncate text-center text-[10px]">
                 {token.name}
               </span>
+              <span className="text-muted-foreground max-w-20 truncate text-center font-mono text-[9px]">
+                var({token.var})
+              </span>
             </div>
           ))}
         </Row>
@@ -211,6 +216,9 @@ function ColorsSection() {
               />
               <span className="text-muted-foreground text-[10px]">
                 {token.name}
+              </span>
+              <span className="text-muted-foreground max-w-20 truncate text-center font-mono text-[9px]">
+                var({token.var})
               </span>
             </div>
           ))}
@@ -798,10 +806,66 @@ function SeparatorSection() {
   )
 }
 
+// ─── Direction ──────────────────────────────────────────────────
+
+function DirectionSection() {
+  const [dir, setDir] = React.useState<"ltr" | "rtl">("ltr")
+
+  return (
+    <Section id="direction" title="Direction">
+      <div className="space-y-6">
+        <Row label="Toggle direction">
+          <Button
+            variant={dir === "ltr" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setDir("ltr")}
+          >
+            LTR
+          </Button>
+          <Button
+            variant={dir === "rtl" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setDir("rtl")}
+          >
+            RTL
+          </Button>
+        </Row>
+        <DirectionProvider dir={dir}>
+          <div className="max-w-sm space-y-4">
+            <Field>
+              <FieldLabel htmlFor="ds-dir-name">Name</FieldLabel>
+              <Input
+                id="ds-dir-name"
+                placeholder={dir === "rtl" ? "ادخل اسمك" : "Enter your name"}
+              />
+            </Field>
+            <Button>
+              {dir === "rtl" ? "التالي" : "Next"}
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                strokeWidth={2}
+                data-icon="inline-end"
+              />
+            </Button>
+          </div>
+        </DirectionProvider>
+      </div>
+    </Section>
+  )
+}
+
 // ─── Page ───────────────────────────────────────────────────────
 
 export function DesignSystemPage() {
   const [activeSection, setActiveSection] = React.useState("")
+  const [isDark, setIsDark] = React.useState(() =>
+    document.documentElement.classList.contains("dark")
+  )
+
+  const toggleDark = React.useCallback(() => {
+    document.documentElement.classList.toggle("dark")
+    setIsDark((prev) => !prev)
+  }, [])
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
@@ -836,6 +900,12 @@ export function DesignSystemPage() {
               Design System
             </h1>
           </div>
+          <Button variant="ghost" size="icon-sm" onClick={toggleDark}>
+            <HugeiconsIcon
+              icon={isDark ? SunIcon : MoonIcon}
+              strokeWidth={2}
+            />
+          </Button>
         </div>
       </header>
 
@@ -876,6 +946,7 @@ export function DesignSystemPage() {
           <AlertDialogSection />
           <DropdownMenuSection />
           <SeparatorSection />
+          <DirectionSection />
         </main>
       </div>
     </div>

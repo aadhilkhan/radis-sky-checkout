@@ -26,6 +26,12 @@ export interface CheckoutConfig {
   orderAmount: number
 }
 
+export const ALL_PLANS: BnplPlan[] = [
+  { id: "pay-in-4", name: "Pay in 4", installments: 4, intervalWeeks: 2 },
+  { id: "pay-in-3", name: "Pay in 3", installments: 3, intervalWeeks: 4 },
+  { id: "pay-later", name: "Pay Later", installments: 1, intervalWeeks: 4 },
+]
+
 const defaultConfig: CheckoutConfig = {
   merchant: {
     name: "Demo Store",
@@ -33,14 +39,10 @@ const defaultConfig: CheckoutConfig = {
     brandColor: "#4F46E5",
     currency: "AED",
   },
-  plans: [
-    { id: "pay-in-4", name: "Pay in 4", installments: 4, intervalWeeks: 2 },
-    { id: "pay-in-3", name: "Pay in 3", installments: 3, intervalWeeks: 4 },
-    { id: "pay-later", name: "Pay Later", installments: 1, intervalWeeks: 4 },
-  ],
+  plans: [...ALL_PLANS],
   paymentMethods: ["card"],
   orderAmount: 400,
-  renderMode: "modal",
+  renderMode: "fullpage",
 }
 
 interface CheckoutConfigContextValue {
@@ -48,6 +50,7 @@ interface CheckoutConfigContextValue {
   setConfig: (config: CheckoutConfig) => void
   updateMerchant: (merchant: Partial<MerchantConfig>) => void
   setPlans: (plans: BnplPlan[]) => void
+  togglePlan: (planId: string) => void
   setPaymentMethods: (methods: PaymentMethodType[]) => void
   setRenderMode: (mode: "modal" | "fullpage") => void
   setOrderAmount: (amount: number) => void
@@ -66,6 +69,23 @@ export function CheckoutConfigProvider({ children }: { children: ReactNode }) {
     setConfig((prev) => ({ ...prev, plans }))
   }
 
+  const togglePlan = (planId: string) => {
+    setConfig((prev) => {
+      const isSelected = prev.plans.some((p) => p.id === planId)
+      if (isSelected) {
+        if (prev.plans.length > 1) {
+          return { ...prev, plans: prev.plans.filter((p) => p.id !== planId) }
+        }
+        return prev
+      }
+      const plan = ALL_PLANS.find((p) => p.id === planId)
+      if (plan) {
+        return { ...prev, plans: [...prev.plans, plan] }
+      }
+      return prev
+    })
+  }
+
   const setPaymentMethods = (methods: PaymentMethodType[]) => {
     setConfig((prev) => ({ ...prev, paymentMethods: methods }))
   }
@@ -80,7 +100,7 @@ export function CheckoutConfigProvider({ children }: { children: ReactNode }) {
 
   return (
     <CheckoutConfigContext.Provider
-      value={{ config, setConfig, updateMerchant, setPlans, setPaymentMethods, setRenderMode, setOrderAmount }}
+      value={{ config, setConfig, updateMerchant, setPlans, togglePlan, setPaymentMethods, setRenderMode, setOrderAmount }}
     >
       {children}
     </CheckoutConfigContext.Provider>

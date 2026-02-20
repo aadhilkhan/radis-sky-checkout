@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons"
+import { Cancel01Icon, Menu01Icon, Store01Icon, ShoppingBag01Icon, WorkflowSquare03Icon, Calendar01Icon, CreditCardIcon } from "@hugeicons/core-free-icons"
 import { useCheckoutConfig, ALL_PLANS, type PaymentMethodType, type Currency } from "@/context/CheckoutConfigContext"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -38,7 +38,7 @@ export function ConfiguratorPage() {
   const [logoInputMode, setLogoInputMode] = useState<"url" | "upload">("url")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [sidebarWidth, setSidebarWidth] = useState(320)
+  const [sidebarWidth, setSidebarWidth] = useState(Math.floor(window.innerWidth / 3))
   const [isWideViewport, setIsWideViewport] = useState(window.innerWidth >= SIDE_BY_SIDE_BREAKPOINT)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [previewContainerWidth, setPreviewContainerWidth] = useState(0)
@@ -118,7 +118,10 @@ export function ConfiguratorPage() {
       {/* Merchant Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Merchant</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <HugeiconsIcon icon={Store01Icon} size={18} className="text-muted-foreground" />
+            Merchant
+          </CardTitle>
           <CardDescription>Store identity and currency settings.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -225,7 +228,10 @@ export function ConfiguratorPage() {
       {/* Order */}
       <Card>
         <CardHeader>
-          <CardTitle>Order</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="text-muted-foreground" />
+            Order
+          </CardTitle>
           <CardDescription>Set the demo order total.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -246,7 +252,10 @@ export function ConfiguratorPage() {
       {/* Checkout Flow */}
       <Card>
         <CardHeader>
-          <CardTitle>Checkout Flow</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <HugeiconsIcon icon={WorkflowSquare03Icon} size={18} className="text-muted-foreground" />
+            Checkout Flow
+          </CardTitle>
           <CardDescription>Select which checkout journey to use.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -290,7 +299,10 @@ export function ConfiguratorPage() {
       {/* BNPL Plans */}
       <Card>
         <CardHeader>
-          <CardTitle>BNPL Plans</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <HugeiconsIcon icon={Calendar01Icon} size={18} className="text-muted-foreground" />
+            BNPL Plans
+          </CardTitle>
           <CardDescription>Select which split payment options to offer.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -322,7 +334,10 @@ export function ConfiguratorPage() {
       {/* Payment Methods */}
       <Card>
         <CardHeader>
-          <CardTitle>Payment Methods</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <HugeiconsIcon icon={CreditCardIcon} size={18} className="text-muted-foreground" />
+            Payment Methods
+          </CardTitle>
           <CardDescription>Choose which methods customers can use.</CardDescription>
         </CardHeader>
         <CardContent>

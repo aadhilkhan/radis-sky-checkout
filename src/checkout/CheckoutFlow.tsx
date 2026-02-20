@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "motion/react"
+import { cn } from "@/lib/utils"
 import { useCheckout } from "./CheckoutProvider"
 import { StepLogin } from "./steps/StepLogin"
 import { StepPlanSelection } from "./steps/StepPlanSelection"
@@ -13,7 +14,7 @@ const stepComponents = {
 } as const
 
 export function CheckoutFlow() {
-  const { state, stepIndex } = useCheckout()
+  const { state, stepIndex, totalSteps } = useCheckout()
   const StepComponent = stepComponents[state.currentStep]
 
   return (
@@ -28,12 +29,13 @@ export function CheckoutFlow() {
         >
           {/* Step progress */}
           <div className="mb-6 flex gap-1.5">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {Array.from({ length: totalSteps }).map((_, i) => (
               <div
                 key={i}
-                className={`h-1 flex-1 rounded-full transition-colors ${
+                className={cn(
+                  "h-1 flex-1 rounded-full transition-colors",
                   i <= stepIndex ? "bg-primary" : "bg-muted"
-                }`}
+                )}
               />
             ))}
           </div>

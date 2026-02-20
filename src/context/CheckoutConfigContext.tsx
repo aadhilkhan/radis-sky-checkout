@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
 
 export type Currency = "AED" | "SAR" | "KWD" | "BHD" | "QAR" | "OMR" | "USD"
 
@@ -58,15 +58,15 @@ const CheckoutConfigContext = createContext<CheckoutConfigContextValue | null>(n
 export function CheckoutConfigProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<CheckoutConfig>(defaultConfig)
 
-  const updateMerchant = (merchant: Partial<MerchantConfig>) => {
+  const updateMerchant = useCallback((merchant: Partial<MerchantConfig>) => {
     setConfig((prev) => ({ ...prev, merchant: { ...prev.merchant, ...merchant } }))
-  }
+  }, [])
 
-  const setPlans = (plans: BnplPlan[]) => {
+  const setPlans = useCallback((plans: BnplPlan[]) => {
     setConfig((prev) => ({ ...prev, plans }))
-  }
+  }, [])
 
-  const togglePlan = (planId: string) => {
+  const togglePlan = useCallback((planId: string) => {
     setConfig((prev) => {
       const isSelected = prev.plans.some((p) => p.id === planId)
       if (isSelected) {
@@ -81,20 +81,22 @@ export function CheckoutConfigProvider({ children }: { children: ReactNode }) {
       }
       return prev
     })
-  }
+  }, [])
 
-  const setPaymentMethods = (methods: PaymentMethodType[]) => {
+  const setPaymentMethods = useCallback((methods: PaymentMethodType[]) => {
     setConfig((prev) => ({ ...prev, paymentMethods: methods }))
-  }
+  }, [])
 
-  const setOrderAmount = (amount: number) => {
+  const setOrderAmount = useCallback((amount: number) => {
     setConfig((prev) => ({ ...prev, orderAmount: amount }))
-  }
+  }, [])
+
+  const value = useMemo(() => ({
+    config, setConfig, updateMerchant, setPlans, togglePlan, setPaymentMethods, setOrderAmount,
+  }), [config, updateMerchant, setPlans, togglePlan, setPaymentMethods, setOrderAmount])
 
   return (
-    <CheckoutConfigContext.Provider
-      value={{ config, setConfig, updateMerchant, setPlans, togglePlan, setPaymentMethods, setOrderAmount }}
-    >
+    <CheckoutConfigContext.Provider value={value}>
       {children}
     </CheckoutConfigContext.Provider>
   )

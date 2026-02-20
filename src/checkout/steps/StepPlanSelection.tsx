@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { BnplPlan } from "@/context/CheckoutConfigContext"
+import { formatCurrency } from "@/lib/utils"
 
 export function StepPlanSelection() {
   const { state, config, dispatch, next, back } = useCheckout()
@@ -17,16 +18,12 @@ export function StepPlanSelection() {
     }
   }
 
-  const formatAmount = (amount: number) => {
-    return `${config.merchant.currency} ${amount.toFixed(2)}`
-  }
-
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-lg font-semibold">Choose Your Plan</h2>
         <p className="text-muted-foreground text-sm">
-          Split {formatAmount(config.orderAmount)} into easy payments.
+          Split {formatCurrency(config.orderAmount, config.merchant.currency)} into easy payments.
         </p>
       </div>
 
@@ -59,12 +56,12 @@ export function StepPlanSelection() {
                     </div>
                     <p className="text-muted-foreground mt-0.5 text-sm">
                       {plan.installments > 1
-                        ? `${plan.installments} payments of ${formatAmount(installmentAmount)} every ${plan.intervalWeeks} weeks`
-                        : `Pay ${formatAmount(config.orderAmount)} in ${plan.intervalWeeks} weeks`}
+                        ? `${plan.installments} payments of ${formatCurrency(installmentAmount, config.merchant.currency)} every ${plan.intervalWeeks} weeks`
+                        : `Pay ${formatCurrency(config.orderAmount, config.merchant.currency)} in ${plan.intervalWeeks} weeks`}
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{formatAmount(installmentAmount)}</div>
+                    <div className="font-semibold">{formatCurrency(installmentAmount, config.merchant.currency)}</div>
                     {plan.installments > 1 && (
                       <div className="text-muted-foreground text-xs">per payment</div>
                     )}

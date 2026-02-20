@@ -1,9 +1,11 @@
+import { useRef, useEffect } from "react"
 import { useCheckout } from "../CheckoutProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { PaymentMethodType } from "@/context/CheckoutConfigContext"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CreditCardIcon, SmartPhone01Icon, GoogleIcon } from "@hugeicons/core-free-icons"
+import { formatCurrency } from "@/lib/utils"
 
 const METHOD_META: Record<PaymentMethodType, { label: string; icon: typeof CreditCardIcon }> = {
   card: { label: "Credit / Debit Card", icon: CreditCardIcon },
@@ -13,24 +15,33 @@ const METHOD_META: Record<PaymentMethodType, { label: string; icon: typeof Credi
 
 export function StepPaymentMethod() {
   const { state, config, dispatch, next, back } = useCheckout()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [])
 
   const handleSelect = (method: PaymentMethodType) => {
     dispatch({ type: "SELECT_PAYMENT_METHOD", method })
   }
 
   const handlePay = () => {
-    if (state.selectedPaymentMethod) {
+    if (state.selectedPaymentMethod && !state.isProcessing) {
       dispatch({ type: "SET_PROCESSING", isProcessing: true })
-      // Simulate payment processing
-      setTimeout(() => {
-        dispatch({ type: "SET_PROCESSING", isProcessing: false })
-        next()
+      timerRef.current = setTimeout(() => {
+        if (mountedRef.current) {
+          dispatch({ type: "SET_PROCESSING", isProcessing: false })
+          next()
+        }
       }, 1500)
     }
-  }
-
-  const formatAmount = (amount: number) => {
-    return `${config.merchant.currency} ${amount.toFixed(2)}`
   }
 
   const firstPayment = state.selectedPlan
@@ -42,7 +53,7 @@ export function StepPaymentMethod() {
       <div>
         <h2 className="text-lg font-semibold">Payment Method</h2>
         <p className="text-muted-foreground text-sm">
-          Choose how to pay {formatAmount(firstPayment)} today.
+          Choose how to pay {formatCurrency(firstPayment, config.merchant.currency)} today.
         </p>
       </div>
 
@@ -83,7 +94,7 @@ export function StepPaymentMethod() {
           disabled={!state.selectedPaymentMethod || state.isProcessing}
           onClick={handlePay}
         >
-          {state.isProcessing ? "Processing..." : `Pay ${formatAmount(firstPayment)}`}
+          {state.isProcessing ? "Processing..." : `Pay ${formatCurrency(firstPayment, config.merchant.currency)}`}
         </Button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, type ReactNode } from "react"
+import { createContext, useContext, useReducer, useCallback, useMemo, type ReactNode } from "react"
 import type { CheckoutConfig, BnplPlan, PaymentMethodType } from "@/context/CheckoutConfigContext"
 
 export type CheckoutStep = "login" | "plan-selection" | "payment-method" | "success"
@@ -37,30 +37,55 @@ const initialState: CheckoutState = {
   isProcessing: false,
 }
 
+function canAdvanceFrom(step: CheckoutStep, state: CheckoutState): boolean {
+  switch (step) {
+    case "login":
+      return state.isVerified
+    case "plan-selection":
+      return state.selectedPlan !== null
+    case "payment-method":
+      return state.selectedPaymentMethod !== null
+    case "success":
+      return false
+  }
+}
+
 function checkoutReducer(state: CheckoutState, action: CheckoutAction): CheckoutState {
   switch (action.type) {
     case "NEXT_STEP": {
       const currentIndex = STEP_ORDER.indexOf(state.currentStep)
-      if (currentIndex < STEP_ORDER.length - 1) {
-        return { ...state, currentStep: STEP_ORDER[currentIndex + 1] }
+      const nextStep = STEP_ORDER[currentIndex + 1]
+      if (nextStep && canAdvanceFrom(state.currentStep, state)) {
+        return { ...state, currentStep: nextStep }
       }
       return state
     }
     case "PREV_STEP": {
       const currentIndex = STEP_ORDER.indexOf(state.currentStep)
-      if (currentIndex > 0) {
-        return { ...state, currentStep: STEP_ORDER[currentIndex - 1] }
+      const prevStep = STEP_ORDER[currentIndex - 1]
+      if (prevStep) {
+        return { ...state, currentStep: prevStep }
       }
       return state
     }
-    case "GO_TO_STEP":
-      return { ...state, currentStep: action.step }
+    case "GO_TO_STEP": {
+      const targetIndex = STEP_ORDER.indexOf(action.step)
+      const currentIndex = STEP_ORDER.indexOf(state.currentStep)
+      if (targetIndex < currentIndex) {
+        return { ...state, currentStep: action.step }
+      }
+      if (targetIndex === currentIndex + 1 && canAdvanceFrom(state.currentStep, state)) {
+        return { ...state, currentStep: action.step }
+      }
+      return state
+    }
     case "SET_PHONE":
       return { ...state, phone: action.phone }
     case "SET_OTP":
       return { ...state, otp: action.otp }
     case "VERIFY_OTP":
-      return { ...state, isVerified: true }
+      // SECURITY-TODO: Replace with server-side OTP verification
+      return { ...state, isVerified: true, otp: "" }
     case "SELECT_PLAN":
       return { ...state, selectedPlan: action.plan }
     case "SELECT_PAYMENT_METHOD":
@@ -69,8 +94,6 @@ function checkoutReducer(state: CheckoutState, action: CheckoutAction): Checkout
       return { ...state, isProcessing: action.isProcessing }
     case "RESET":
       return initialState
-    default:
-      return state
   }
 }
 
@@ -99,17 +122,21 @@ export function CheckoutProvider({
 
   const stepIndex = STEP_ORDER.indexOf(state.currentStep)
 
-  const value: CheckoutContextValue = {
+  const next = useCallback(() => dispatch({ type: "NEXT_STEP" }), [])
+  const back = useCallback(() => dispatch({ type: "PREV_STEP" }), [])
+  const goTo = useCallback((step: CheckoutStep) => dispatch({ type: "GO_TO_STEP", step }), [])
+
+  const value: CheckoutContextValue = useMemo(() => ({
     state,
     config,
     dispatch,
-    next: () => dispatch({ type: "NEXT_STEP" }),
-    back: () => dispatch({ type: "PREV_STEP" }),
-    goTo: (step) => dispatch({ type: "GO_TO_STEP", step }),
+    next,
+    back,
+    goTo,
     canGoBack: stepIndex > 0,
     stepIndex,
     totalSteps: STEP_ORDER.length,
-  }
+  }), [state, config, stepIndex, next, back, goTo])
 
   return (
     <CheckoutContext.Provider value={value}>

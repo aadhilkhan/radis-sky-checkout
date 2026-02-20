@@ -56,17 +56,24 @@ export function ConfiguratorPage() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // Track preview container width via ResizeObserver
+  // Track preview container width via ResizeObserver (debounced to avoid layout thrashing)
   useEffect(() => {
     const el = previewRef.current
     if (!el) return
+    let rafId: number
     const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setPreviewContainerWidth(entry.contentRect.width)
-      }
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        for (const entry of entries) {
+          setPreviewContainerWidth(entry.contentRect.width)
+        }
+      })
     })
     observer.observe(el)
-    return () => observer.disconnect()
+    return () => {
+      cancelAnimationFrame(rafId)
+      observer.disconnect()
+    }
   }, [])
 
   // Drag handle for resizing sidebar

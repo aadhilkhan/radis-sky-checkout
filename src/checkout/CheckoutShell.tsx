@@ -8,13 +8,36 @@ import { useCheckout } from "./CheckoutProvider"
 import type { MerchantConfig } from "@/context/CheckoutConfigContext"
 
 interface CheckoutShellProps {
-  mode: "modal" | "fullpage"
+  mode: "modal" | "fullpage" | "inline"
   onClose?: () => void
+  containerWidth?: number
   children: ReactNode
 }
 
-export function CheckoutShell({ mode, onClose, children }: CheckoutShellProps) {
+export function CheckoutShell({ mode, onClose, containerWidth, children }: CheckoutShellProps) {
   const { config } = useCheckout()
+
+  if (mode === "inline") {
+    const isMobile = containerWidth !== undefined && containerWidth < 448
+
+    if (isMobile) {
+      return (
+        <div className="bg-card flex h-full w-full flex-col overflow-hidden">
+          <ShellHeader merchant={config.merchant} />
+          <div className="flex-1 overflow-y-auto p-6">{children}</div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex h-full w-full items-start justify-center bg-muted/30 p-8">
+        <div className="bg-card ring-foreground/10 w-full max-w-md overflow-hidden rounded-2xl shadow-lg ring-1">
+          <ShellHeader merchant={config.merchant} />
+          <div className="p-6">{children}</div>
+        </div>
+      </div>
+    )
+  }
 
   if (mode === "fullpage") {
     return (

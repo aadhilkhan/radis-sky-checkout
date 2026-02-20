@@ -68,19 +68,12 @@ function ShellHeader({ merchant, onClose }: { merchant: MerchantConfig; onClose?
   return (
     <div className="flex items-center justify-between border-b px-6 py-4">
       <div className="flex items-center gap-3">
-        {merchant.logoUrl ? (
+        {merchant.logoUrl && (
           <img
             src={merchant.logoUrl}
             alt={`${merchant.name} logo`}
             className="h-7 w-7 rounded-md object-contain"
           />
-        ) : (
-          <div
-            className="flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold text-white"
-            style={{ backgroundColor: merchant.brandColor || "var(--primary)" }}
-          >
-            {merchant.name.charAt(0).toUpperCase()}
-          </div>
         )}
         <span className="text-sm font-semibold">{merchant.name}</span>
       </div>

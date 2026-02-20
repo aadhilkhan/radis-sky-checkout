@@ -95,26 +95,6 @@ export function ConfiguratorPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="merchant-color">Brand Color</FieldLabel>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      id="merchant-color"
-                      value={config.merchant.brandColor}
-                      onChange={(e) => updateMerchant({ brandColor: e.target.value })}
-                      className="h-9 w-12 cursor-pointer rounded-md border p-1"
-                    />
-                    <Input
-                      value={config.merchant.brandColor}
-                      onChange={(e) => updateMerchant({ brandColor: e.target.value })}
-                      placeholder="#4F46E5"
-                      className="flex-1"
-                    />
-                  </div>
-                  <FieldDescription>Primary color used in the checkout UI.</FieldDescription>
-                </Field>
-
-                <Field>
                   <FieldLabel htmlFor="merchant-currency">Currency</FieldLabel>
                   <Select
                     value={config.merchant.currency}

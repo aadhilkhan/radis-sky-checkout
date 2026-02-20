@@ -55,7 +55,7 @@ Embeddable BNPL (Buy Now Pay Later) checkout product, similar to Tabby. React 19
 - `docs/plans/` — design documents and implementation plans
 
 ### Routes
-- `/` — Checkout Configurator (setup wizard + launch CTA)
+- `/` — Checkout Configurator (side-by-side layout with live preview)
 - `/design-system` — Living component showcase (all shadcn/ui components)
 - `/checkout` — Full-page checkout mode
 

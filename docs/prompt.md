@@ -168,3 +168,7 @@
 - Rewrote ConfiguratorPage as two-column side-by-side layout with drag-resizable divider
 - Added drawer fallback for narrow viewports (<1024px) with Motion slide animation
 - Updated all documentation (CLAUDE.md, design docs, prompt log)
+
+**Follow-up tweaks:**
+- Default sidebar width changed to 1/3 of viewport (was fixed 320px)
+- Added HugeIcons to each configurator section header (Store, ShoppingBag, Workflow, Calendar, CreditCard)

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field"
 
+const OTP_LENGTH = 4
+
 export function StepLogin() {
   const { state, dispatch, next } = useCheckout()
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -15,12 +17,12 @@ export function StepLogin() {
 
   const handleOtpDigit = (index: number, value: string) => {
     const digit = value.replace(/\D/g, "").slice(-1)
-    const newOtp = state.otp.split("")
-    newOtp[index] = digit
-    const otp = newOtp.join("")
+    const newOtp = state.otp.padEnd(OTP_LENGTH, " ").split("")
+    newOtp[index] = digit || " "
+    const otp = newOtp.join("").trimEnd()
     dispatch({ type: "SET_OTP", otp })
 
-    if (digit && index < 3) {
+    if (digit && index < OTP_LENGTH - 1) {
       otpRefs.current[index + 1]?.focus()
     }
   }
@@ -37,11 +39,7 @@ export function StepLogin() {
   }
 
   const isPhoneValid = state.phone.length >= 9
-  const isOtpComplete = state.otp.replace(/\s/g, "").length === 4
-
-  if (!state.isVerified && isPhoneValid && state.otp.length === 0) {
-    // Show OTP request state
-  }
+  const isOtpComplete = state.otp.replace(/\s/g, "").length === OTP_LENGTH
 
   return (
     <div className="flex flex-col gap-6">
@@ -67,14 +65,14 @@ export function StepLogin() {
         <Field>
           <FieldLabel>Verification Code</FieldLabel>
           <div className="flex gap-3">
-            {[0, 1, 2, 3].map((i) => (
+            {Array.from({ length: OTP_LENGTH }).map((_, i) => (
               <Input
                 key={i}
                 ref={(el) => { otpRefs.current[i] = el }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
-                value={state.otp[i] || ""}
+                value={state.otp[i]?.trim() || ""}
                 onChange={(e) => handleOtpDigit(i, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(i, e)}
                 className="h-12 text-center text-lg"
@@ -82,7 +80,7 @@ export function StepLogin() {
               />
             ))}
           </div>
-          <FieldDescription>Enter the 4-digit code sent to your phone. (Use 1234 for demo)</FieldDescription>
+          <FieldDescription>Enter the {OTP_LENGTH}-digit code sent to your phone. (Use 1234 for demo)</FieldDescription>
         </Field>
       )}
 

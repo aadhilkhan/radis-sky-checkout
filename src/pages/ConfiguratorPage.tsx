@@ -47,15 +47,32 @@ export function ConfiguratorPage() {
   const previewRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
 
-  // Track viewport width and toggle layout mode
+  // Revoke previous blob URL when logo changes to prevent memory leak
+  const prevLogoRef = useRef(config.merchant.logoUrl)
   useEffect(() => {
+    const prev = prevLogoRef.current
+    prevLogoRef.current = config.merchant.logoUrl
+    if (prev && prev !== config.merchant.logoUrl && prev.startsWith("blob:")) {
+      URL.revokeObjectURL(prev)
+    }
+  }, [config.merchant.logoUrl])
+
+  // Track viewport width and toggle layout mode (debounced)
+  useEffect(() => {
+    let timerId: ReturnType<typeof setTimeout>
     const handleResize = () => {
-      const wide = window.innerWidth >= SIDE_BY_SIDE_BREAKPOINT
-      setIsWideViewport(wide)
-      if (wide) setIsDrawerOpen(false)
+      clearTimeout(timerId)
+      timerId = setTimeout(() => {
+        const wide = window.innerWidth >= SIDE_BY_SIDE_BREAKPOINT
+        setIsWideViewport(wide)
+        if (wide) setIsDrawerOpen(false)
+      }, 100)
     }
     window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+    return () => {
+      clearTimeout(timerId)
+      window.removeEventListener("resize", handleResize)
+    }
   }, [])
 
   // Track preview container width via ResizeObserver (debounced to avoid layout thrashing)
@@ -262,38 +279,38 @@ export function ConfiguratorPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground"
+            <Button
+              variant="ghost"
+              className="flex h-auto items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground"
             >
               <div className="text-left">
                 <span className="font-medium">Standard BNPL</span>
                 <p className="text-muted-foreground mt-0.5 text-xs">Login → Plan Selection → Payment → Success</p>
               </div>
               <Badge variant="default" className="text-xs">Active</Badge>
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
               disabled
-              className="flex cursor-not-allowed items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60"
+              className="flex h-auto cursor-not-allowed items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60"
             >
               <div className="text-left">
                 <span className="font-medium">Quick Pay</span>
                 <p className="mt-0.5 text-xs">Simplified one-step checkout</p>
               </div>
               <Badge variant="outline" className="text-xs">Coming Soon</Badge>
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
               disabled
-              className="flex cursor-not-allowed items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60"
+              className="flex h-auto cursor-not-allowed items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60"
             >
               <div className="text-left">
                 <span className="font-medium">Onboarding + BNPL</span>
                 <p className="mt-0.5 text-xs">Customer details → Credit scoring → BNPL</p>
               </div>
               <Badge variant="outline" className="text-xs">Coming Soon</Badge>
-            </button>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -347,15 +364,16 @@ export function ConfiguratorPage() {
             {PAYMENT_METHODS.map((method) => {
               const isActive = config.paymentMethods.includes(method.value)
               return (
-                <button
+                <Button
                   key={method.value}
-                  type="button"
+                  variant="ghost"
                   onClick={() => togglePaymentMethod(method.value)}
-                  className={`flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors ${
+                  className={cn(
+                    "flex h-auto items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors",
                     isActive
                       ? "border-primary/30 bg-primary/5 text-foreground"
                       : "border-border text-muted-foreground hover:bg-muted/50"
-                  }`}
+                  )}
                 >
                   <span>{method.label}</span>
                   {isActive && (
@@ -363,7 +381,7 @@ export function ConfiguratorPage() {
                       Active
                     </Badge>
                   )}
-                </button>
+                </Button>
               )
             })}
           </div>

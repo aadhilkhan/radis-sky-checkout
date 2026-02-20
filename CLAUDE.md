@@ -34,11 +34,40 @@ Embeddable BNPL (Buy Now Pay Later) checkout product, similar to Tabby. React 19
 - **RTL support:** enabled in shadcn config
 
 ### Critical constraints
-- **Every UI element** must use components from `src/components/ui/` — no one-off styled elements
+- **Every UI element** must use components from `src/components/ui/` — no one-off styled elements (no raw `<button>`, use `<Button>`)
 - **Responsive:** mobile-first, must work on both mobile and desktop
 - **CLAUDE.md** must be updated after every key change
 - **README** must be updated after every significant commit
 - **Prompt log:** Append every user prompt (and any clarifying Q&A) to `docs/prompt.md` at the end of each session or commit
+
+### Coding conventions (established in codebase audit)
+
+#### State management
+- **Step guards:** The checkout reducer enforces preconditions before advancing steps via `canAdvanceFrom()`. Never bypass this — always validate state (e.g., OTP verified, plan selected, payment method selected) before allowing `NEXT_STEP`.
+- **Sensitive data:** Clear sensitive fields (OTP, tokens) from state immediately after use. `VERIFY_OTP` clears `otp` from state.
+- **Exhaustive switches:** Reducer `switch` cases must be exhaustive (no `default: return state`). TypeScript will catch missing cases.
+
+#### Performance
+- **Route-level code splitting:** All page routes use `React.lazy()` + `<Suspense>`. New pages must follow this pattern in `App.tsx`.
+- **Context memoization:** Both `CheckoutProvider` and `CheckoutConfigContext` wrap their context values in `useMemo` and handlers in `useCallback`. Any new context must do the same.
+- **Debounce resize handlers:** Window resize listeners must be debounced (100ms). Use `ResizeObserver` with `requestAnimationFrame` for element-level size tracking.
+- **Blob URL cleanup:** When using `URL.createObjectURL()`, always revoke previous URLs via `URL.revokeObjectURL()` to prevent memory leaks.
+
+#### React patterns
+- **`mountedRef` + StrictMode:** When using a `mountedRef` pattern (to guard async callbacks), always reset `mountedRef.current = true` in the effect body, not just via `useRef(true)`. StrictMode's unmount-remount cycle will otherwise leave the ref permanently `false`.
+- **Timer cleanup:** All `setTimeout`/`setInterval` calls must store the timer ID in a `useRef` and clear it in the effect cleanup.
+- **Button type safety:** The `Button` component defaults to `type="button"`. This prevents accidental form submissions. Never override this to `"submit"` unless inside an actual `<form>`.
+
+#### Security
+- **Logo/image URLs:** Validate user-supplied image URLs with a whitelist regex (`/^(https?:|blob:|data:image\/)/.test(url)`) before rendering in `<img>`. Always set `referrerPolicy="no-referrer"` on external images.
+- **No `"use client"`:** This is a Vite SPA, not Next.js. Do not add `"use client"` directives — they are no-ops here.
+
+#### Styling
+- **Use `cn()` for conditional classes:** Never use template literals for conditional className strings. Always use `cn()` from `@/lib/utils`.
+- **Unique `data-slot` values:** Each component must have a unique `data-slot` attribute. Never reuse a slot name across different components.
+
+#### Utilities
+- **`formatCurrency(amount, currency)`** in `src/lib/utils.ts` — shared currency formatter. Do not create local `formatAmount` helpers in step components.
 
 ### Path aliases
 `@/*` maps to `./src/*` (configured in both vite.config.ts and tsconfig.app.json).
@@ -49,7 +78,7 @@ Embeddable BNPL (Buy Now Pay Later) checkout product, similar to Tabby. React 19
 - `src/pages/` — route pages (ConfiguratorPage, DesignSystemPage)
 - `src/checkout/` — checkout widget; CheckoutShell supports three modes: `inline` (configurator preview), `fullpage` (standalone page), `modal` (overlay)
 - `src/context/` — React contexts (CheckoutConfigContext)
-- `src/lib/utils.ts` — `cn()` helper combining clsx and tailwind-merge
+- `src/lib/utils.ts` — `cn()` helper (clsx + tailwind-merge) and `formatCurrency()` shared utility
 - `src/index.css` — Tailwind imports, shadcn theme, OKLCH design tokens (light/dark mode)
 - `components.json` — shadcn/ui configuration (stone base color, CSS variables, HugeIcons, RTL)
 - `docs/plans/` — design documents and implementation plans

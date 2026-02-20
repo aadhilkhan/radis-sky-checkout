@@ -172,3 +172,63 @@
 **Follow-up tweaks:**
 - Default sidebar width changed to 1/3 of viewport (was fixed 320px)
 - Added HugeIcons to each configurator section header (Store, ShoppingBag, Workflow, Calendar, CreditCard)
+
+---
+
+## Session: 2026-02-21 — Codebase Audit & Optimization
+
+### Prompt
+
+> Go through my entire codebase line by line and find any vulnerabilities and issues with code. Let me know if you find any ways to optimise the code as well, and remove bloat
+
+### Audit Process
+
+Dispatched 3 parallel audit agents to review the entire codebase:
+1. **Checkout flow & state** — CheckoutProvider, CheckoutFlow, CheckoutShell, all Step components, CheckoutConfigContext
+2. **UI components** — All `src/components/ui/*` files, component-example.tsx, example.tsx
+3. **Pages, config, and infra** — App.tsx, main.tsx, utils.ts, all pages, CSS, config files
+
+### Findings: 21 issues fixed (3 CRITICAL, 5 HIGH, 7 MEDIUM, 6 LOW)
+
+**CRITICAL:**
+1. Checkout reducer had no step guards — could skip steps by calling `next()` without completing prerequisites. Added `canAdvanceFrom()` validation.
+2. OTP was retained in state after verification — security risk. `VERIFY_OTP` now clears `otp` from state.
+3. `setTimeout` in StepPaymentMethod had no cleanup — could fire after unmount. Added `mountedRef` + `timerRef` with proper effect cleanup.
+
+**HIGH:**
+4. Build tools (`agentation`, `shadcn`, `tailwindcss`, `@tailwindcss/vite`) were in `dependencies` instead of `devDependencies`.
+5. No route-level code splitting — entire app loaded as single bundle. Added `React.lazy()` + `Suspense` for all pages.
+6. Context values recreated on every render in both providers. Added `useMemo`/`useCallback` memoization.
+7. `Button` component had no `type` default — risked accidental form submissions. Added `type="button"`.
+8. `FieldTitle` and `FieldLabel` shared the same `data-slot="field-label"` — selector collision. Fixed to `"field-title"`.
+
+**MEDIUM:**
+9. Duplicate `formatAmount` helpers in 3 step components. Consolidated into shared `formatCurrency()` in `utils.ts`.
+10. `StepSuccess` used `window.location.reload()` — replaced with `dispatch({ type: "RESET" })`.
+11. `CheckoutPage` used `window.location.href` — replaced with `useNavigate()`.
+12. Logo URL rendered without validation — added regex whitelist + `referrerPolicy="no-referrer"`.
+13. `ComboboxClear` button had no accessible label — added `aria-label="Clear selection"`.
+14. `.gitignore` missing `.env` patterns — added.
+15. `index.html` title was "vite-app" — changed to "Radis Sky Checkout".
+
+**LOW:**
+16. `"use client"` directives in 6 files — no-ops in Vite SPA, removed.
+17. `vite.config.ts` used `__dirname` directly instead of the already-computed `dirname` variable — fixed.
+18. Blob URL memory leak in ConfiguratorPage logo upload — added `URL.revokeObjectURL()` cleanup.
+19. 4 raw `<button>` elements in ConfiguratorPage — replaced with `<Button>` component.
+20. Template literal for conditional classes — replaced with `cn()`.
+21. Unbounded resize handler — added 100ms debounce.
+
+### Bug fix: Payment stuck at processing
+
+> Payment method screen stuck at processing, not seeing success screen
+
+**Root cause:** The `mountedRef` pattern (added in fix #3) interacted with React StrictMode. In dev mode, StrictMode unmounts and remounts components. The cleanup set `mountedRef.current = false`, but the effect body never reset it to `true` on remount. The timeout callback's `if (mountedRef.current)` guard permanently blocked the transition.
+
+**Fix:** Added `mountedRef.current = true` at the start of the effect body so it resets after StrictMode's unmount-remount cycle.
+
+### Documentation
+
+> Make another commit with the project's context docs about all the optimisations made
+
+Updated CLAUDE.md with new "Coding conventions" section covering: state management patterns, performance rules, React patterns (mountedRef + StrictMode, timer cleanup, button type safety), security conventions, styling rules, and shared utilities.

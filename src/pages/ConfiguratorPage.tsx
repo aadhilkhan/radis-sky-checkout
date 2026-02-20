@@ -1,10 +1,10 @@
-import { useState } from "react"
-import { useCheckoutConfig, type PaymentMethodType, type Currency } from "@/context/CheckoutConfigContext"
+import { useState, useRef } from "react"
+import { useCheckoutConfig, ALL_PLANS, type PaymentMethodType, type Currency } from "@/context/CheckoutConfigContext"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Field, FieldLabel, FieldDescription, FieldGroup } from "@/components/ui/field"
 import { CheckoutProvider } from "@/checkout/CheckoutProvider"
@@ -28,8 +28,10 @@ const PAYMENT_METHODS: { value: PaymentMethodType; label: string }[] = [
 ]
 
 export function ConfiguratorPage() {
-  const { config, updateMerchant, setPaymentMethods, setRenderMode, setOrderAmount } = useCheckoutConfig()
+  const { config, updateMerchant, togglePlan, setPaymentMethods, setRenderMode, setOrderAmount } = useCheckoutConfig()
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [logoInputMode, setLogoInputMode] = useState<"url" | "upload">("url")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const togglePaymentMethod = (method: PaymentMethodType) => {
     const current = config.paymentMethods
@@ -84,13 +86,69 @@ export function ConfiguratorPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="merchant-logo">Logo URL</FieldLabel>
-                  <Input
-                    id="merchant-logo"
-                    value={config.merchant.logoUrl}
-                    onChange={(e) => updateMerchant({ logoUrl: e.target.value })}
-                    placeholder="https://example.com/logo.png"
-                  />
+                  <FieldLabel>Logo</FieldLabel>
+                  <div className="flex gap-2 mb-2">
+                    <Button
+                      type="button"
+                      variant={logoInputMode === "url" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLogoInputMode("url")}
+                    >
+                      URL
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={logoInputMode === "upload" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLogoInputMode("upload")}
+                    >
+                      Upload
+                    </Button>
+                  </div>
+                  {logoInputMode === "url" ? (
+                    <Input
+                      id="merchant-logo"
+                      value={config.merchant.logoUrl}
+                      onChange={(e) => updateMerchant({ logoUrl: e.target.value })}
+                      placeholder="https://example.com/logo.png"
+                    />
+                  ) : (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            const url = URL.createObjectURL(file)
+                            updateMerchant({ logoUrl: url })
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        {config.merchant.logoUrl ? "Change Image" : "Choose Image"}
+                      </Button>
+                    </>
+                  )}
+                  {config.merchant.logoUrl && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <img
+                        src={config.merchant.logoUrl}
+                        alt="Logo preview"
+                        className="h-8 w-8 rounded object-contain border"
+                      />
+                      <span className="text-xs text-muted-foreground truncate max-w-48">
+                        {config.merchant.logoUrl}
+                      </span>
+                    </div>
+                  )}
                   <FieldDescription>Optional merchant logo for the checkout header.</FieldDescription>
                 </Field>
 
@@ -133,13 +191,6 @@ export function ConfiguratorPage() {
                   value={config.orderAmount}
                   onChange={(e) => setOrderAmount(Number(e.target.value))}
                 />
-                <FieldDescription>
-                  Installment preview: {config.plans.map((p) => (
-                    <span key={p.id} className="mr-2">
-                      {p.installments}x {formatAmount(config.orderAmount / p.installments)}
-                    </span>
-                  ))}
-                </FieldDescription>
               </Field>
             </CardContent>
           </Card>
@@ -156,7 +207,7 @@ export function ConfiguratorPage() {
                   type="button"
                   className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground"
                 >
-                  <div>
+                  <div className="text-left">
                     <span className="font-medium">Standard BNPL</span>
                     <p className="text-muted-foreground text-xs mt-0.5">Login → Plan Selection → Payment → Success</p>
                   </div>
@@ -167,7 +218,7 @@ export function ConfiguratorPage() {
                   disabled
                   className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60 cursor-not-allowed"
                 >
-                  <div>
+                  <div className="text-left">
                     <span className="font-medium">Quick Pay</span>
                     <p className="text-xs mt-0.5">Simplified one-step checkout</p>
                   </div>
@@ -178,7 +229,7 @@ export function ConfiguratorPage() {
                   disabled
                   className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground opacity-60 cursor-not-allowed"
                 >
-                  <div>
+                  <div className="text-left">
                     <span className="font-medium">Onboarding + BNPL</span>
                     <p className="text-xs mt-0.5">Customer details → Credit scoring → BNPL</p>
                   </div>
@@ -192,18 +243,30 @@ export function ConfiguratorPage() {
           <Card>
             <CardHeader>
               <CardTitle>BNPL Plans</CardTitle>
-              <CardDescription>Available split payment options.</CardDescription>
+              <CardDescription>Select which split payment options to offer.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {config.plans.map((plan) => (
-                  <Badge key={plan.id} variant="secondary" className="gap-1.5 px-3 py-1.5 text-sm">
-                    {plan.name}
-                    <span className="text-muted-foreground">
-                      ({plan.installments}x, every {plan.intervalWeeks}w)
-                    </span>
-                  </Badge>
-                ))}
+              <div className="flex flex-col gap-3">
+                {ALL_PLANS.map((plan) => {
+                  const isSelected = config.plans.some((p) => p.id === plan.id)
+                  return (
+                    <label
+                      key={plan.id}
+                      className="flex items-center gap-3 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => togglePlan(plan.id)}
+                      />
+                      <div>
+                        <span className="text-sm font-medium">{plan.name}</span>
+                        <span className="text-muted-foreground text-sm ml-1.5">
+                          ({plan.installments}x, every {plan.intervalWeeks}w)
+                        </span>
+                      </div>
+                    </label>
+                  )
+                })}
               </div>
             </CardContent>
           </Card>
@@ -252,21 +315,6 @@ export function ConfiguratorPage() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setRenderMode("modal")}
-                  className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-sm transition-colors ${
-                    config.renderMode === "modal"
-                      ? "border-primary bg-primary/5 text-foreground"
-                      : "border-border text-muted-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="bg-muted flex h-12 w-16 items-center justify-center rounded-md border">
-                    <div className="bg-card h-8 w-10 rounded border shadow-sm" />
-                  </div>
-                  <span className="font-medium">Modal</span>
-                  <span className="text-muted-foreground text-xs">Overlay on current page</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => setRenderMode("fullpage")}
                   className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-sm transition-colors ${
                     config.renderMode === "fullpage"
@@ -280,11 +328,24 @@ export function ConfiguratorPage() {
                   <span className="font-medium">Full Page</span>
                   <span className="text-muted-foreground text-xs">Standalone checkout page</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setRenderMode("modal")}
+                  className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-sm transition-colors ${
+                    config.renderMode === "modal"
+                      ? "border-primary bg-primary/5 text-foreground"
+                      : "border-border text-muted-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  <div className="bg-muted flex h-12 w-16 items-center justify-center rounded-md border">
+                    <div className="bg-card h-8 w-10 rounded border shadow-sm" />
+                  </div>
+                  <span className="font-medium">Modal</span>
+                  <span className="text-muted-foreground text-xs">Overlay on current page</span>
+                </button>
               </div>
             </CardContent>
           </Card>
-
-          <Separator />
 
           {/* Launch */}
           <Button size="lg" className="w-full" onClick={handleLaunch}>

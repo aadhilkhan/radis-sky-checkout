@@ -287,7 +287,7 @@ export function ConfiguratorPage() {
           <div className="flex flex-col gap-2">
             <Button
               variant="ghost"
-              className="flex h-auto items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground"
+              className="flex h-auto items-center justify-between rounded-lg border border-primary/60 bg-primary/5 px-4 py-3 text-sm text-foreground"
             >
               <div className="text-left">
                 <span className="font-medium">Standard BNPL</span>
@@ -381,7 +381,7 @@ export function ConfiguratorPage() {
                   className={cn(
                     "flex h-auto items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors",
                     isActive
-                      ? "border-primary/30 bg-primary/5 text-foreground"
+                      ? "border-primary/60 bg-primary/5 text-foreground"
                       : "border-border text-muted-foreground hover:bg-muted/50"
                   )}
                 >

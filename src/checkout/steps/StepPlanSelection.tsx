@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { BnplPlan } from "@/context/CheckoutConfigContext"
-import { formatCurrency } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 
 export function StepPlanSelection() {
   const { state, config, dispatch, next, back } = useCheckout()
@@ -36,11 +36,12 @@ export function StepPlanSelection() {
             <Card
               key={plan.id}
               size="sm"
-              className={`cursor-pointer transition-colors ${
+              className={cn(
+                "cursor-pointer transition-colors",
                 isSelected
-                  ? "border-primary ring-primary/20 ring-2"
+                  ? "border-primary ring-primary/70 ring-2"
                   : "hover:border-foreground/20"
-              }`}
+              )}
               onClick={() => handleSelect(plan)}
             >
               <CardContent>

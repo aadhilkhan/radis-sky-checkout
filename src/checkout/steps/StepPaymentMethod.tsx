@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import type { PaymentMethodType } from "@/context/CheckoutConfigContext"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CreditCardIcon, SmartPhone01Icon, GoogleIcon } from "@hugeicons/core-free-icons"
-import { formatCurrency } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 
 const METHOD_META: Record<PaymentMethodType, { label: string; icon: typeof CreditCardIcon }> = {
   card: { label: "Credit / Debit Card", icon: CreditCardIcon },
@@ -66,11 +66,12 @@ export function StepPaymentMethod() {
             <Card
               key={method}
               size="sm"
-              className={`cursor-pointer transition-colors ${
+              className={cn(
+                "cursor-pointer transition-colors",
                 isSelected
-                  ? "border-primary ring-primary/20 ring-2"
+                  ? "border-primary ring-primary/70 ring-2"
                   : "hover:border-foreground/20"
-              }`}
+              )}
               onClick={() => handleSelect(method)}
             >
               <CardContent>

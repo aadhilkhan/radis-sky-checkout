@@ -138,7 +138,9 @@ export function ConfiguratorPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={Store01Icon} size={18} className="text-muted-foreground" />
+            <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+              <HugeiconsIcon icon={Store01Icon} size={16} className="text-primary" />
+            </div>
             Merchant
           </CardTitle>
           <CardDescription>Store identity and currency settings.</CardDescription>
@@ -248,7 +250,9 @@ export function ConfiguratorPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="text-muted-foreground" />
+            <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={16} className="text-primary" />
+            </div>
             Order
           </CardTitle>
           <CardDescription>Set the demo order total.</CardDescription>
@@ -272,7 +276,9 @@ export function ConfiguratorPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={WorkflowSquare03Icon} size={18} className="text-muted-foreground" />
+            <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+              <HugeiconsIcon icon={WorkflowSquare03Icon} size={16} className="text-primary" />
+            </div>
             Checkout Flow
           </CardTitle>
           <CardDescription>Select which checkout journey to use.</CardDescription>
@@ -319,7 +325,9 @@ export function ConfiguratorPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={Calendar01Icon} size={18} className="text-muted-foreground" />
+            <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+              <HugeiconsIcon icon={Calendar01Icon} size={16} className="text-primary" />
+            </div>
             BNPL Plans
           </CardTitle>
           <CardDescription>Select which split payment options to offer.</CardDescription>
@@ -354,7 +362,9 @@ export function ConfiguratorPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={CreditCardIcon} size={18} className="text-muted-foreground" />
+            <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+              <HugeiconsIcon icon={CreditCardIcon} size={16} className="text-primary" />
+            </div>
             Payment Methods
           </CardTitle>
           <CardDescription>Choose which methods customers can use.</CardDescription>
